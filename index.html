@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>贪吃蛇</title>
+<style type="text/css">
+body,div,button{margin:0;padding:0}
+#main{width:800px;margin:50px auto}
+#map{width:800px;height:400px;background:url(beijing.png);position: relative;}
+#main button{width:80px;height:35px;background:#932853}
+embed{width:5px;height:5px}
+
+
+</style>
+</head>
+<body>
+<div id = 'main'>
+<embed height="100" width="100" src="tanchishe.mp3" />
+	<button onclick='startGame()'>点击开始</button>
+	<button onclick='sP()'>点击暂停</button>
+	<button onclick='sC()'>点击继续</button>
+	<button onclick = 'gameOver("结束")'>点击结束</button>
+	<div id = 'map'></div>
+</div>
+<script>
+
+function snake(fly){
+	this.w = 20;
+	this.h = 20;
+	this.body = [
+		{x:2,y:0},
+		{x:1,y:0},
+		{x:0,y:0}
+	];
+	this.direction = 'right';
+	this.display = function(){
+		for(var i = 0; i < this.body.length; i++){
+			var img = document.createElement('img');
+			img.src = 'snake.jpg';
+			img.style.position = 'absolute';
+			img.style.left = this.body[i].x * this.w +'px';
+			img.style.top = this.body[i].y * this.h +'px';
+			img.style.width = this.w + 'px';
+			img.style.height = this.h + 'px';
+			this.body[i].flag = img;
+			document.getElementById('map').appendChild(img);
+		}
+	}
+	this.run = function(){
+		for(var i=this.body.length-1; i>0; i--){
+			this.body[i].x = this.body[i-1].x;
+			this.body[i].y = this.body[i-1].y;
+		}
+		switch(this.direction){
+		case 'right': this.body[0].x += 1; break;
+		case 'left': this.body[0].x -= 1; break;
+		case 'up': this.body[0].y -= 1; break;
+		case 'down': this.body[0].y += 1; break;
+		}
+	    for(var i=0; i<this.body.length; i++){
+	    	if(this.body[i].flag !=null){
+	    		document.getElementById('map').removeChild(this.body[i].flag);	
+			}
+		} 
+		 this.display();
+	    
+	    if(this.body[0].x == fly.x && this.body[0].y == fly.y){
+	    	this.eat();
+	    } 
+		 if(this.body[0].x < 0 || this.body[0].x > 39 || this.body[0].y<0 || this.body[0].y>19){
+			clearInterval(timer);
+			gameOver('game over!');
+		 }
+		 for(var i=4; i<this.body.length-1; i++){
+			 if(this.body[0].x == this.body[i].x && this.body[0].y == this.body[i].y){
+				 gameOver('撞到自己了,要挂了!');
+			 }
+		 }
+	}
+	this.eat = function(){
+		this.body.push({x:0,y:0});
+		fly.newfly();
+		//timer = setInterval("snake.run()", 200);
+		//alert(fly.x);
+	}
+}
+function fly(rx,ry){
+	this.w = 20;
+	this.h = 20;
+	this.x = Math.ceil(rx * 19);
+	this.y = Math.ceil(ry * 19);
+	this.body = [
+		{x:0,y:0}
+	];
+	this.display = function(){
+ 			if(this.body[0].f != null){
+ 				document.getElementById('map').removeChild(this.body[0].f);
+ 			}                                 
+			var img = document.createElement('img');
+			img.src = 'fly.jpg';
+			img.style.position = 'absolute';
+			img.style.left = this.x * this.w +'px';
+			img.style.top = this.y * this.h +'px';
+			img.style.width = this.w + 'px';
+			img.style.height = this.h + 'px';
+			this.body[0].f = img;
+			document.getElementById('map').appendChild(img);
+	}
+	this.newfly = function(){
+		this.x = Math.ceil(Math.random() * 19);
+		this.y = Math.ceil(Math.random() * 19);
+		this.display();
+	}
+	
+}
+
+var fly = new fly(Math.random(),Math.random());
+fly.display();
+
+//实例化蛇对象
+var snake = new snake(fly);
+//让蛇显示出来
+snake.display();
+//实例苍蝇
+
+
+
+//点击开始按钮时让蛇开始跑起来
+var timer = null;
+var flag = 1;
+function startGame(){
+	
+	clearInterval(timer);
+	timer = setInterval("snake.run()", 200);
+}
+function sP(){
+	clearInterval(timer);
+	alert(timer);
+}
+function sC(){
+	timer = setInterval("snake.run()", 200);
+	alert(timer);
+}
+function gameOver(message){
+	var num = snake.body.length;
+	alert(message+'你的成绩是'+num);
+	clearInterval(timer);
+	for(var i=0; i<snake.body.length; i++){
+    	if(snake.body[i].flag !=null){
+    		document.getElementById('map').removeChild(snake.body[i].flag);	
+		}
+	}
+	snake.body = [
+		{x:2,y:0},
+		{x:1,y:0},
+		{x:0,y:0}
+	];
+	snake.direction='right';
+	snake.display();
+	
+}
+document.onkeydown = function(e){
+	var ev = e || window.event;
+	switch(ev.keyCode){
+	case 37: 
+		if(snake.direction != 'right'){
+			snake.direction = 'left';
+		}
+		break;
+	case 38:
+		if(snake.direction != 'down'){
+			snake.direction = 'up';
+		}
+		break;
+	case 39:
+		if(snake.direction != 'left'){
+			snake.direction = 'right';
+		}
+		break;
+	case 40:
+		if(snake.direction != 'up'){
+			snake.direction = 'down';
+		}
+		break;
+	case 32:
+		if(flag == 1){
+			clearInterval(timer);
+			flag = 2;
+		}else{
+			clearInterval(timer);
+			timer = setInterval("snake.run()", 200);
+			flag = 1;
+		}
+		break;
+	}
+	
+}
+
+
+
+</script>
+
+</body>
+</html>
